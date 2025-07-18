@@ -1,0 +1,457 @@
+{
+  "template_name": "Monthly Comprehensive Report",
+  "template_version": "1.0",
+  "description": "Detailed monthly business intelligence report",
+  "sheets": [
+    {
+      "name": "Executive Summary",
+      "type": "executive_summary",
+      "sections": [
+        {
+          "name": "Key Performance Indicators",
+          "position": "A3",
+          "metrics": [
+            {
+              "name": "Total Routes",
+              "field": "total_routes",
+              "type": "count",
+              "format": "#,##0"
+            },
+            {
+              "name": "Total Miles",
+              "field": "total_miles",
+              "type": "sum",
+              "format": "#,##0.00"
+            },
+            {
+              "name": "Total Revenue",
+              "field": "revenue",
+              "type": "sum",
+              "format": "$#,##0.00"
+            },
+            {
+              "name": "Total Profit",
+              "field": "profit",
+              "type": "sum",
+              "format": "$#,##0.00"
+            },
+            {
+              "name": "Profit Margin",
+              "field": "profit_margin",
+              "type": "calculated",
+              "formula": "profit / revenue * 100",
+              "format": "0.00%"
+            },
+            {
+              "name": "Fleet Utilization",
+              "field": "fleet_utilization",
+              "type": "percentage",
+              "format": "0.00%"
+            }
+          ]
+        },
+        {
+          "name": "Month-over-Month Growth",
+          "position": "A15",
+          "metrics": [
+            {
+              "name": "Revenue Growth",
+              "field": "revenue_growth",
+              "type": "percentage",
+              "format": "0.00%"
+            },
+            {
+              "name": "Route Growth",
+              "field": "route_growth",
+              "type": "percentage",
+              "format": "0.00%"
+            },
+            {
+              "name": "Efficiency Improvement",
+              "field": "efficiency_improvement",
+              "type": "percentage",
+              "format": "0.00%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Financial Analysis",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Category",
+          "field": "category",
+          "type": "text",
+          "width": 20
+        },
+        {
+          "name": "Current Month",
+          "field": "current_month",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Previous Month",
+          "field": "previous_month",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Change",
+          "field": "change",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "% Change",
+          "field": "percent_change",
+          "type": "percentage",
+          "format": "0.00%",
+          "width": 12
+        },
+        {
+          "name": "YTD Total",
+          "field": "ytd_total",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        }
+      ],
+      "data_source": "financial_breakdown"
+    },
+    {
+      "name": "Operational Metrics",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Metric",
+          "field": "metric_name",
+          "type": "text",
+          "width": 25
+        },
+        {
+          "name": "Value",
+          "field": "value",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Target",
+          "field": "target",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Variance",
+          "field": "variance",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "% to Target",
+          "field": "percent_to_target",
+          "type": "percentage",
+          "format": "0.00%",
+          "width": 12
+        },
+        {
+          "name": "Trend",
+          "field": "trend",
+          "type": "text",
+          "width": 10
+        }
+      ],
+      "data_source": "operational_metrics"
+    },
+    {
+      "name": "Driver Rankings",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Rank",
+          "field": "rank",
+          "type": "number",
+          "format": "#,##0",
+          "width": 8
+        },
+        {
+          "name": "Driver",
+          "field": "driver_name",
+          "type": "text",
+          "width": 20
+        },
+        {
+          "name": "Routes",
+          "field": "route_count",
+          "type": "number",
+          "format": "#,##0",
+          "width": 10
+        },
+        {
+          "name": "Miles",
+          "field": "total_miles",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Revenue",
+          "field": "revenue",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Efficiency Score",
+          "field": "efficiency_score",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Safety Score",
+          "field": "safety_score",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Overall Score",
+          "field": "overall_score",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 15
+        }
+      ],
+      "data_source": "driver_rankings"
+    },
+    {
+      "name": "Customer Profitability",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Customer",
+          "field": "customer_name",
+          "type": "text",
+          "width": 25
+        },
+        {
+          "name": "Routes",
+          "field": "route_count",
+          "type": "number",
+          "format": "#,##0",
+          "width": 10
+        },
+        {
+          "name": "Revenue",
+          "field": "revenue",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Costs",
+          "field": "costs",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Profit",
+          "field": "profit",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Margin %",
+          "field": "profit_margin",
+          "type": "percentage",
+          "format": "0.00%",
+          "width": 12
+        },
+        {
+          "name": "Rev/Route",
+          "field": "revenue_per_route",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Customer LTV",
+          "field": "customer_ltv",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        }
+      ],
+      "data_source": "customer_profitability"
+    },
+    {
+      "name": "Vehicle Performance",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Vehicle",
+          "field": "vehicle_info",
+          "type": "text",
+          "width": 20
+        },
+        {
+          "name": "Routes",
+          "field": "route_count",
+          "type": "number",
+          "format": "#,##0",
+          "width": 10
+        },
+        {
+          "name": "Miles",
+          "field": "total_miles",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Fuel Used",
+          "field": "fuel_used",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "MPG",
+          "field": "mpg",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Utilization %",
+          "field": "utilization",
+          "type": "percentage",
+          "format": "0.00%",
+          "width": 12
+        },
+        {
+          "name": "Maintenance Cost",
+          "field": "maintenance_cost",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Cost/Mile",
+          "field": "cost_per_mile",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 12
+        }
+      ],
+      "data_source": "vehicle_performance"
+    },
+    {
+      "name": "Trends & Analytics",
+      "type": "charts",
+      "charts": [
+        {
+          "name": "Monthly Revenue Trend",
+          "type": "line",
+          "data_source": "monthly_revenue_trend",
+          "position": "A2",
+          "size": {
+            "width": 15,
+            "height": 8
+          }
+        },
+        {
+          "name": "Cost Breakdown",
+          "type": "pie",
+          "data_source": "cost_breakdown",
+          "position": "A15",
+          "size": {
+            "width": 8,
+            "height": 8
+          }
+        },
+        {
+          "name": "Driver Performance Matrix",
+          "type": "scatter",
+          "data_source": "driver_performance_matrix",
+          "position": "J15",
+          "size": {
+            "width": 8,
+            "height": 8
+          }
+        }
+      ]
+    }
+  ],
+  "styling": {
+    "header": {
+      "font": {
+        "bold": true,
+        "color": "FFFFFF"
+      },
+      "fill": {
+        "color": "2E5266"
+      },
+      "alignment": {
+        "horizontal": "center",
+        "vertical": "center"
+      }
+    },
+    "data": {
+      "font": {
+        "size": 9
+      },
+      "border": {
+        "style": "thin"
+      }
+    },
+    "kpi": {
+      "font": {
+        "size": 14,
+        "bold": true
+      },
+      "fill": {
+        "color": "E7E6E6"
+      },
+      "border": {
+        "style": "thick"
+      }
+    },
+    "executive_summary": {
+      "font": {
+        "size": 12
+      },
+      "fill": {
+        "color": "F8F9FA"
+      }
+    }
+  },
+  "conditional_formatting": [
+    {
+      "range": "profit_margin_column",
+      "type": "color_scale",
+      "colors": ["FF0000", "FFFF00", "00FF00"]
+    },
+    {
+      "range": "efficiency_score_column",
+      "type": "data_bars",
+      "color": "4ECDC4"
+    },
+    {
+      "range": "percent_to_target_column",
+      "type": "icon_set",
+      "icons": ["red_down_arrow", "yellow_dash", "green_up_arrow"]
+    }
+  ]
+}

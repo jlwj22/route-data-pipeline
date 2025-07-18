@@ -1,0 +1,280 @@
+{
+  "template_name": "Daily Route Summary",
+  "template_version": "1.0",
+  "description": "Standard daily route summary report template",
+  "sheets": [
+    {
+      "name": "Route Summary",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Route ID",
+          "field": "route_id",
+          "type": "text",
+          "width": 12
+        },
+        {
+          "name": "Driver",
+          "field": "driver_name",
+          "type": "text",
+          "width": 20
+        },
+        {
+          "name": "Vehicle",
+          "field": "vehicle_info",
+          "type": "text",
+          "width": 15
+        },
+        {
+          "name": "Customer",
+          "field": "customer_name",
+          "type": "text",
+          "width": 25
+        },
+        {
+          "name": "Start Location",
+          "field": "start_location",
+          "type": "text",
+          "width": 30
+        },
+        {
+          "name": "End Location",
+          "field": "end_location",
+          "type": "text",
+          "width": 30
+        },
+        {
+          "name": "Miles",
+          "field": "total_miles",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Revenue",
+          "field": "revenue",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Fuel Cost",
+          "field": "fuel_cost",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Driver Pay",
+          "field": "driver_pay",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Profit",
+          "field": "profit",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Status",
+          "field": "status",
+          "type": "text",
+          "width": 12
+        }
+      ],
+      "summary_rows": [
+        {
+          "label": "TOTALS",
+          "calculations": [
+            {
+              "column": "total_miles",
+              "function": "SUM"
+            },
+            {
+              "column": "revenue",
+              "function": "SUM"
+            },
+            {
+              "column": "fuel_cost",
+              "function": "SUM"
+            },
+            {
+              "column": "driver_pay",
+              "function": "SUM"
+            },
+            {
+              "column": "profit",
+              "function": "SUM"
+            }
+          ]
+        },
+        {
+          "label": "AVERAGES",
+          "calculations": [
+            {
+              "column": "total_miles",
+              "function": "AVERAGE"
+            },
+            {
+              "column": "revenue",
+              "function": "AVERAGE"
+            },
+            {
+              "column": "profit",
+              "function": "AVERAGE"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Performance Metrics",
+      "type": "kpi_dashboard",
+      "metrics": [
+        {
+          "name": "Total Routes",
+          "field": "route_count",
+          "type": "count",
+          "position": "A3"
+        },
+        {
+          "name": "Total Miles",
+          "field": "total_miles",
+          "type": "sum",
+          "format": "#,##0.00",
+          "position": "A5"
+        },
+        {
+          "name": "Total Revenue",
+          "field": "revenue",
+          "type": "sum",
+          "format": "$#,##0.00",
+          "position": "A7"
+        },
+        {
+          "name": "Total Costs",
+          "field": "total_costs",
+          "type": "sum",
+          "format": "$#,##0.00",
+          "position": "A9"
+        },
+        {
+          "name": "Total Profit",
+          "field": "profit",
+          "type": "sum",
+          "format": "$#,##0.00",
+          "position": "A11"
+        },
+        {
+          "name": "Profit Margin",
+          "field": "profit_margin",
+          "type": "calculated",
+          "formula": "profit / revenue * 100",
+          "format": "0.00%",
+          "position": "A13"
+        },
+        {
+          "name": "Average MPG",
+          "field": "fuel_efficiency",
+          "type": "average",
+          "format": "#,##0.00",
+          "position": "A15"
+        },
+        {
+          "name": "Revenue per Mile",
+          "field": "revenue_per_mile",
+          "type": "calculated",
+          "formula": "revenue / total_miles",
+          "format": "$#,##0.00",
+          "position": "A17"
+        }
+      ]
+    },
+    {
+      "name": "Charts",
+      "type": "charts",
+      "charts": [
+        {
+          "name": "Revenue by Driver",
+          "type": "bar",
+          "data_source": "driver_revenue",
+          "position": "A2",
+          "size": {
+            "width": 8,
+            "height": 6
+          }
+        },
+        {
+          "name": "Cost Breakdown",
+          "type": "pie",
+          "data_source": "cost_breakdown",
+          "position": "K2",
+          "size": {
+            "width": 8,
+            "height": 6
+          }
+        }
+      ]
+    }
+  ],
+  "styling": {
+    "header": {
+      "font": {
+        "bold": true,
+        "color": "FFFFFF"
+      },
+      "fill": {
+        "color": "366092"
+      },
+      "alignment": {
+        "horizontal": "center",
+        "vertical": "center"
+      }
+    },
+    "data": {
+      "font": {
+        "size": 10
+      },
+      "border": {
+        "style": "thin"
+      }
+    },
+    "title": {
+      "font": {
+        "size": 16,
+        "bold": true
+      },
+      "alignment": {
+        "horizontal": "center"
+      }
+    }
+  },
+  "conditional_formatting": [
+    {
+      "range": "profit_column",
+      "type": "color_scale",
+      "colors": ["FF6B6B", "FFE66D", "4ECDC4"]
+    },
+    {
+      "range": "status_column",
+      "type": "icon_set",
+      "rules": [
+        {
+          "value": "completed",
+          "icon": "green_circle"
+        },
+        {
+          "value": "in_progress",
+          "icon": "yellow_circle"
+        },
+        {
+          "value": "cancelled",
+          "icon": "red_circle"
+        }
+      ]
+    }
+  ]
+}

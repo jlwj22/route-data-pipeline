@@ -154,6 +154,20 @@ class Settings:
     def report_generation_timeout(self) -> int:
         return self.getint('PERFORMANCE', 'report_generation_timeout', 300)
 
+    def get_google_maps_api_key(self) -> Optional[str]:
+        """Get Google Maps API key from config or environment."""
+        api_key = self.get('API_KEYS', 'google_maps_api_key', '')
+        if not api_key:
+            api_key = os.environ.get('GOOGLE_MAPS_API_KEY', '')
+        return api_key if api_key else None
+
+    def get_mapbox_api_key(self) -> Optional[str]:
+        """Get MapBox API key from config or environment."""
+        api_key = self.get('API_KEYS', 'mapbox_api_key', '')
+        if not api_key:
+            api_key = os.environ.get('MAPBOX_API_KEY', '')
+        return api_key if api_key else None
+
     def ensure_directories(self):
         directories = [
             self.output_directory,

@@ -1,0 +1,345 @@
+{
+  "template_name": "Weekly Performance Report",
+  "template_version": "1.0",
+  "description": "Comprehensive weekly performance analysis report",
+  "sheets": [
+    {
+      "name": "Weekly Overview",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Date",
+          "field": "date",
+          "type": "date",
+          "format": "MM/DD/YYYY",
+          "width": 15
+        },
+        {
+          "name": "Routes",
+          "field": "route_count",
+          "type": "number",
+          "format": "#,##0",
+          "width": 10
+        },
+        {
+          "name": "Miles",
+          "field": "total_miles",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Revenue",
+          "field": "revenue",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Costs",
+          "field": "costs",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Profit",
+          "field": "profit",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Margin %",
+          "field": "profit_margin",
+          "type": "percentage",
+          "format": "0.00%",
+          "width": 12
+        },
+        {
+          "name": "Avg MPG",
+          "field": "avg_mpg",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        }
+      ],
+      "summary_rows": [
+        {
+          "label": "WEEK TOTALS",
+          "calculations": [
+            {
+              "column": "route_count",
+              "function": "SUM"
+            },
+            {
+              "column": "total_miles",
+              "function": "SUM"
+            },
+            {
+              "column": "revenue",
+              "function": "SUM"
+            },
+            {
+              "column": "costs",
+              "function": "SUM"
+            },
+            {
+              "column": "profit",
+              "function": "SUM"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Driver Performance",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Driver",
+          "field": "driver_name",
+          "type": "text",
+          "width": 20
+        },
+        {
+          "name": "Routes",
+          "field": "route_count",
+          "type": "number",
+          "format": "#,##0",
+          "width": 10
+        },
+        {
+          "name": "Miles",
+          "field": "total_miles",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Revenue",
+          "field": "revenue",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Avg Speed",
+          "field": "avg_speed",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Efficiency",
+          "field": "efficiency",
+          "type": "percentage",
+          "format": "0.00%",
+          "width": 12
+        },
+        {
+          "name": "On-Time %",
+          "field": "on_time_percentage",
+          "type": "percentage",
+          "format": "0.00%",
+          "width": 12
+        },
+        {
+          "name": "Safety Score",
+          "field": "safety_score",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "Customer Analysis",
+      "type": "data_table",
+      "columns": [
+        {
+          "name": "Customer",
+          "field": "customer_name",
+          "type": "text",
+          "width": 25
+        },
+        {
+          "name": "Routes",
+          "field": "route_count",
+          "type": "number",
+          "format": "#,##0",
+          "width": 10
+        },
+        {
+          "name": "Revenue",
+          "field": "revenue",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Avg Revenue/Route",
+          "field": "avg_revenue_per_route",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 18
+        },
+        {
+          "name": "Total Miles",
+          "field": "total_miles",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        },
+        {
+          "name": "Profitability",
+          "field": "profitability",
+          "type": "currency",
+          "format": "$#,##0.00",
+          "width": 15
+        },
+        {
+          "name": "Rating",
+          "field": "customer_rating",
+          "type": "number",
+          "format": "#,##0.00",
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "KPI Dashboard",
+      "type": "kpi_dashboard",
+      "metrics": [
+        {
+          "name": "Weekly Routes",
+          "field": "total_routes",
+          "type": "count",
+          "position": "B3"
+        },
+        {
+          "name": "Weekly Miles",
+          "field": "total_miles",
+          "type": "sum",
+          "format": "#,##0.00",
+          "position": "B5"
+        },
+        {
+          "name": "Weekly Revenue",
+          "field": "revenue",
+          "type": "sum",
+          "format": "$#,##0.00",
+          "position": "B7"
+        },
+        {
+          "name": "Weekly Profit",
+          "field": "profit",
+          "type": "sum",
+          "format": "$#,##0.00",
+          "position": "B9"
+        },
+        {
+          "name": "Profit Margin",
+          "field": "profit_margin",
+          "type": "calculated",
+          "formula": "profit / revenue * 100",
+          "format": "0.00%",
+          "position": "B11"
+        },
+        {
+          "name": "Routes/Day",
+          "field": "routes_per_day",
+          "type": "calculated",
+          "formula": "total_routes / 7",
+          "format": "#,##0.00",
+          "position": "B13"
+        },
+        {
+          "name": "Revenue/Route",
+          "field": "revenue_per_route",
+          "type": "calculated",
+          "formula": "revenue / total_routes",
+          "format": "$#,##0.00",
+          "position": "B15"
+        },
+        {
+          "name": "Fleet Efficiency",
+          "field": "fleet_efficiency",
+          "type": "average",
+          "format": "0.00%",
+          "position": "B17"
+        }
+      ]
+    },
+    {
+      "name": "Trends",
+      "type": "charts",
+      "charts": [
+        {
+          "name": "Daily Revenue Trend",
+          "type": "line",
+          "data_source": "daily_revenue",
+          "position": "A2",
+          "size": {
+            "width": 12,
+            "height": 8
+          }
+        },
+        {
+          "name": "Driver Performance",
+          "type": "bar",
+          "data_source": "driver_performance",
+          "position": "A20",
+          "size": {
+            "width": 12,
+            "height": 8
+          }
+        }
+      ]
+    }
+  ],
+  "styling": {
+    "header": {
+      "font": {
+        "bold": true,
+        "color": "FFFFFF"
+      },
+      "fill": {
+        "color": "4472C4"
+      },
+      "alignment": {
+        "horizontal": "center",
+        "vertical": "center"
+      }
+    },
+    "data": {
+      "font": {
+        "size": 10
+      },
+      "border": {
+        "style": "thin"
+      }
+    },
+    "kpi": {
+      "font": {
+        "size": 12,
+        "bold": true
+      },
+      "fill": {
+        "color": "F2F2F2"
+      }
+    }
+  },
+  "conditional_formatting": [
+    {
+      "range": "efficiency_column",
+      "type": "color_scale",
+      "colors": ["FF6B6B", "FFE66D", "4ECDC4"]
+    },
+    {
+      "range": "on_time_percentage_column",
+      "type": "data_bars",
+      "color": "4ECDC4"
+    }
+  ]
+}

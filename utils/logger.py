@@ -157,3 +157,9 @@ def log_error_with_context(logger: Logger, error: Exception, context: dict = Non
 
 # Create a default logger instance
 default_logger = LoggerManager.get_logger('route_pipeline')
+
+# Convenience function for getting loggers
+def get_logger(name: str, log_file: str = None, log_level: str = 'INFO',
+               max_log_size: int = 10485760, backup_count: int = 5) -> Logger:
+    """Get a logger instance with the specified parameters."""
+    return LoggerManager.get_logger(name, log_file, log_level, max_log_size, backup_count)
