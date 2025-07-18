@@ -20,6 +20,10 @@ from utils.logger import LoggerManager
 from database.operations import DatabaseOperations
 from utils.helpers import ensure_directory_exists
 from data_collection.collection_manager import CollectionManager
+from automation.scheduler import AutomationManager
+from automation.notification_system import NotificationManager
+from automation.backup_manager import BackupManager
+from automation.system_monitor import SystemMonitor
 
 class RoutePipelineApp:
     def __init__(self):
@@ -27,6 +31,10 @@ class RoutePipelineApp:
         self.logger = None
         self.db = None
         self.collection_manager = None
+        self.automation_manager = None
+        self.notification_manager = None
+        self.backup_manager = None
+        self.system_monitor = None
         self.setup_application()
     
     def setup_application(self):
@@ -50,6 +58,12 @@ class RoutePipelineApp:
                 'validators': {}
             }
             self.collection_manager = CollectionManager(collection_config, self.db)
+            
+            # Initialize automation components
+            self.automation_manager = AutomationManager(self.settings)
+            self.notification_manager = NotificationManager(self.settings)
+            self.backup_manager = BackupManager(self.settings)
+            self.system_monitor = SystemMonitor(self.settings)
             
             self.logger.info("Route Pipeline System initialized successfully")
             
@@ -245,6 +259,213 @@ class RoutePipelineApp:
             self.logger.error(f"Scheduled tasks failed: {e}")
             print(f"Scheduled tasks failed: {e}")
             sys.exit(1)
+    
+    def start_automation(self):
+        """Start the automation system"""
+        self.logger.info("Starting automation system...")
+        
+        try:
+            self.automation_manager.start_automation()
+            print("Automation system started successfully!")
+            print("The system will now run scheduled tasks in the background.")
+            print("Press Ctrl+C to stop the automation system.")
+            
+            # Keep the main thread alive
+            import time
+            while True:
+                time.sleep(1)
+                
+        except KeyboardInterrupt:
+            self.logger.info("Stopping automation system...")
+            self.automation_manager.stop_automation()
+            print("\nAutomation system stopped.")
+        except Exception as e:
+            self.logger.error(f"Automation system failed: {e}")
+            print(f"Automation system failed: {e}")
+            sys.exit(1)
+    
+    def stop_automation(self):
+        """Stop the automation system"""
+        self.logger.info("Stopping automation system...")
+        
+        try:
+            self.automation_manager.stop_automation()
+            print("Automation system stopped successfully!")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to stop automation system: {e}")
+            print(f"Failed to stop automation system: {e}")
+            sys.exit(1)
+    
+    def show_automation_status(self):
+        """Show automation system status"""
+        self.logger.info("Retrieving automation status...")
+        
+        try:
+            status = self.automation_manager.get_automation_status()
+            
+            print("=== Automation System Status ===")
+            print(f"Scheduler Running: {'Yes' if status['scheduler_running'] else 'No'}")
+            print(f"Total Jobs: {status['total_jobs']}")
+            
+            if status['scheduled_jobs']:
+                print("\nScheduled Jobs:")
+                for job in status['scheduled_jobs']:
+                    print(f"  - {job['name']}")
+                    print(f"    Next Run: {job['next_run'] or 'Not scheduled'}")
+                    print(f"    Last Run: {job['last_run'] or 'Never'}")
+            else:
+                print("\nNo scheduled jobs configured.")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to retrieve automation status: {e}")
+            print(f"Failed to retrieve automation status: {e}")
+            sys.exit(1)
+    
+    def run_health_check(self):
+        """Run system health check"""
+        self.logger.info("Running system health check...")
+        
+        try:
+            health_report = self.system_monitor.health_check()
+            
+            print("=== System Health Check ===")
+            print(f"Overall Status: {health_report['overall_status']}")
+            print(f"Timestamp: {health_report['timestamp']}")
+            
+            print(f"\nSummary:")
+            print(f"  Healthy: {health_report['summary']['healthy']}")
+            print(f"  Warnings: {health_report['summary']['warnings']}")
+            print(f"  Errors: {health_report['summary']['errors']}")
+            print(f"  Total Checks: {health_report['summary']['total_checks']}")
+            
+            print(f"\nComponent Status:")
+            for component, details in health_report['components'].items():
+                status_icon = "✅" if details['status'] == 'Healthy' else "⚠️" if details['status'] == 'Warning' else "❌"
+                print(f"  {status_icon} {component}: {details['status']}")
+                print(f"    {details['message']}")
+            
+        except Exception as e:
+            self.logger.error(f"Health check failed: {e}")
+            print(f"Health check failed: {e}")
+            sys.exit(1)
+    
+    def run_backup_all(self):
+        """Run full system backup"""
+        self.logger.info("Running full system backup...")
+        
+        try:
+            result = self.backup_manager.full_system_backup()
+            
+            print("=== Full System Backup ===")
+            print(f"Overall Success: {'Yes' if result['success'] else 'No'}")
+            print(f"Timestamp: {result['timestamp']}")
+            print(f"Successful Backups: {result['successful_backups']}/4")
+            print(f"Total Size: {result['total_size']} bytes")
+            
+            print(f"\nBackup Results:")
+            for backup_type, backup_result in result['backup_results'].items():
+                status_icon = "✅" if backup_result.get('success', False) else "❌"
+                print(f"  {status_icon} {backup_type.title()}")
+                if backup_result.get('success'):
+                    print(f"    Path: {backup_result.get('backup_path', 'N/A')}")
+                    print(f"    Size: {backup_result.get('backup_size', 0)} bytes")
+                else:
+                    print(f"    Error: {backup_result.get('error', 'Unknown error')}")
+            
+        except Exception as e:
+            self.logger.error(f"Full backup failed: {e}")
+            print(f"Full backup failed: {e}")
+            sys.exit(1)
+    
+    def list_backups(self):
+        """List all available backups"""
+        self.logger.info("Listing available backups...")
+        
+        try:
+            result = self.backup_manager.list_backups()
+            
+            print("=== Available Backups ===")
+            print(f"Total Backups: {result['backup_count']}")
+            print(f"Total Size: {result['total_size']} bytes")
+            
+            if result['backups']:
+                print(f"\nBackup Files:")
+                for backup in result['backups']:
+                    print(f"  - {backup['filename']} ({backup['type']})")
+                    print(f"    Size: {backup['size']} bytes")
+                    print(f"    Created: {backup['created']}")
+                    print(f"    Compressed: {'Yes' if backup['compressed'] else 'No'}")
+            else:
+                print("\nNo backups found.")
+            
+        except Exception as e:
+            self.logger.error(f"Failed to list backups: {e}")
+            print(f"Failed to list backups: {e}")
+            sys.exit(1)
+    
+    def test_notifications(self):
+        """Test the notification system"""
+        self.logger.info("Testing notification system...")
+        
+        try:
+            success = self.notification_manager.test_notification_system()
+            
+            if success:
+                print("✅ Notification system test successful!")
+                print("Check your email for the test message.")
+            else:
+                print("❌ Notification system test failed!")
+                print("Check the logs for error details.")
+            
+        except Exception as e:
+            self.logger.error(f"Notification test failed: {e}")
+            print(f"Notification test failed: {e}")
+            sys.exit(1)
+    
+    def launch_dashboard(self):
+        """Launch the web dashboard"""
+        self.logger.info("Launching web dashboard...")
+        
+        try:
+            # Check if streamlit is available
+            try:
+                import streamlit
+            except ImportError:
+                print("❌ Streamlit is not installed.")
+                print("Install it with: pip install streamlit")
+                print("Or install optional dependencies with: pip install -e .[dashboard]")
+                return
+            
+            import subprocess
+            import sys
+            from pathlib import Path
+            
+            dashboard_path = Path(__file__).parent / "dashboard" / "app.py"
+            
+            if not dashboard_path.exists():
+                print("❌ Dashboard not found. Please ensure dashboard/app.py exists.")
+                return
+            
+            print("🚀 Launching Route Data Pipeline Dashboard...")
+            print("The dashboard will open in your default web browser.")
+            print("Press Ctrl+C to stop the dashboard server.")
+            
+            # Launch streamlit
+            subprocess.run([
+                sys.executable, "-m", "streamlit", "run", 
+                str(dashboard_path),
+                "--server.headless", "false",
+                "--server.port", "8501",
+                "--browser.gatherUsageStats", "false"
+            ])
+            
+        except KeyboardInterrupt:
+            print("\nDashboard stopped.")
+        except Exception as e:
+            self.logger.error(f"Dashboard launch failed: {e}")
+            print(f"Dashboard launch failed: {e}")
+            sys.exit(1)
 
 def create_argument_parser():
     """Create and configure argument parser"""
@@ -304,6 +525,27 @@ Examples:
     # Scheduled tasks command
     subparsers.add_parser('scheduled', help='Run scheduled tasks')
     
+    # Automation commands
+    automation_parser = subparsers.add_parser('automation', help='Automation system commands')
+    automation_subparsers = automation_parser.add_subparsers(dest='automation_command', help='Automation commands')
+    
+    automation_subparsers.add_parser('start', help='Start the automation system')
+    automation_subparsers.add_parser('stop', help='Stop the automation system')
+    automation_subparsers.add_parser('status', help='Show automation system status')
+    
+    # Health check command
+    subparsers.add_parser('health', help='Run system health check')
+    
+    # Backup commands
+    backup_parser = subparsers.add_parser('backup-all', help='Run full system backup')
+    subparsers.add_parser('list-backups', help='List all available backups')
+    
+    # Notification commands
+    subparsers.add_parser('test-notifications', help='Test the notification system')
+    
+    # Dashboard command (optional)
+    subparsers.add_parser('dashboard', help='Launch web dashboard (requires streamlit)')
+    
     return parser
 
 def main():
@@ -347,6 +589,25 @@ def main():
             app.run_vacuum()
         elif args.command == 'scheduled':
             app.run_scheduled_tasks()
+        elif args.command == 'automation':
+            if args.automation_command == 'start':
+                app.start_automation()
+            elif args.automation_command == 'stop':
+                app.stop_automation()
+            elif args.automation_command == 'status':
+                app.show_automation_status()
+            else:
+                print("Available automation commands: start, stop, status")
+        elif args.command == 'health':
+            app.run_health_check()
+        elif args.command == 'backup-all':
+            app.run_backup_all()
+        elif args.command == 'list-backups':
+            app.list_backups()
+        elif args.command == 'test-notifications':
+            app.test_notifications()
+        elif args.command == 'dashboard':
+            app.launch_dashboard()
         else:
             parser.print_help()
             sys.exit(1)

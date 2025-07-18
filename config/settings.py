@@ -153,6 +153,14 @@ class Settings:
     @property
     def report_generation_timeout(self) -> int:
         return self.getint('PERFORMANCE', 'report_generation_timeout', 300)
+    
+    @property
+    def config_dir(self) -> str:
+        return os.path.dirname(self.config_file)
+    
+    def get_value(self, section: str, key: str, fallback: Any = None) -> Any:
+        """Get a configuration value with fallback"""
+        return self.get(section, key, fallback)
 
     def get_google_maps_api_key(self) -> Optional[str]:
         """Get Google Maps API key from config or environment."""
