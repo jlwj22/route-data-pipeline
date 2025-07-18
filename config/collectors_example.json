@@ -1,0 +1,102 @@
+{
+  "collectors": {
+    "file_import": {
+      "type": "file",
+      "enabled": true,
+      "input_directory": "data/input",
+      "file_patterns": ["*.csv", "*.xlsx"],
+      "move_processed_files": true,
+      "skip_duplicates": true,
+      "column_mapping": {
+        "Route ID": "route_id",
+        "Date": "route_date",
+        "Driver": "driver_name",
+        "Vehicle": "vehicle_id",
+        "Customer": "customer_name",
+        "Miles": "total_miles",
+        "Revenue": "revenue"
+      },
+      "required_columns": ["route_id", "route_date"]
+    },
+    "manual_entry": {
+      "type": "manual",
+      "enabled": true,
+      "entry_file_path": "data/input/manual_entry.json",
+      "auto_create_template": true,
+      "require_all_fields": false
+    },
+    "api_example": {
+      "type": "api",
+      "enabled": false,
+      "base_url": "https://api.example-tms.com/v1",
+      "api_key": "your-api-key-here",
+      "auth_type": "api_key",
+      "endpoints": {
+        "routes": {
+          "url": "/routes",
+          "method": "GET",
+          "data_path": "data",
+          "date_filter": {
+            "enabled": true,
+            "param_name": "from_date",
+            "days_back": 7
+          }
+        }
+      },
+      "timeout": 30,
+      "rate_limit_delay": 1.0
+    },
+    "email_parser": {
+      "type": "email",
+      "enabled": false,
+      "imap_server": "imap.gmail.com",
+      "imap_port": 993,
+      "username": "your-email@example.com",
+      "password": "your-app-password",
+      "mailbox": "INBOX",
+      "sender_filters": ["dispatch@yourcompany.com", "loads@broker.com"],
+      "subject_filters": ["Route Assignment", "Load Confirmation"],
+      "days_back": 7,
+      "mark_as_read": false,
+      "process_attachments": true,
+      "parsing_patterns": {
+        "route_info": {
+          "type": "key_value",
+          "patterns": {
+            "route_id": "Route\\s*ID:\\s*([A-Z0-9]+)",
+            "pickup_date": "Pickup\\s*Date:\\s*([0-9\\/\\-]+)",
+            "driver_name": "Driver:\\s*([A-Za-z\\s]+)",
+            "total_miles": "Miles:\\s*([0-9,\\.]+)"
+          }
+        }
+      }
+    }
+  },
+  "validators": {
+    "route_data": {
+      "name": "route_data_validator",
+      "rules": [
+        {
+          "field_name": "route_id",
+          "rule_type": "required",
+          "parameters": {},
+          "severity": "error",
+          "message": "Route ID is required"
+        },
+        {
+          "field_name": "total_miles",
+          "rule_type": "positive",
+          "parameters": {},
+          "severity": "warning",
+          "message": "Total miles should be positive"
+        }
+      ]
+    }
+  },
+  "settings": {
+    "max_concurrent_collectors": 4,
+    "enable_validation": true,
+    "auto_save_to_database": true,
+    "default_timeout": 300
+  }
+}
