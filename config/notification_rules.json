@@ -1,0 +1,49 @@
+{
+  "recipients": {
+    "admins": [
+      "admin@example.com"
+    ],
+    "operators": [
+      "operator@example.com"
+    ],
+    "reports": [
+      "reports@example.com"
+    ]
+  },
+  "rules": {
+    "report_generated": {
+      "enabled": true,
+      "recipients": [
+        "reports",
+        "admins"
+      ],
+      "conditions": []
+    },
+    "error_occurred": {
+      "enabled": true,
+      "recipients": [
+        "admins"
+      ],
+      "conditions": [
+        "severity >= WARNING"
+      ]
+    },
+    "system_health_check": {
+      "enabled": true,
+      "recipients": [
+        "admins"
+      ],
+      "conditions": [
+        "health_status != Healthy"
+      ]
+    },
+    "data_collection_failed": {
+      "enabled": true,
+      "recipients": [
+        "admins",
+        "operators"
+      ],
+      "conditions": []
+    }
+  }
+}

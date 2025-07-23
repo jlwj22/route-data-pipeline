@@ -24,6 +24,8 @@ from automation.scheduler import AutomationManager
 from automation.notification_system import NotificationManager
 from automation.backup_manager import BackupManager
 from automation.system_monitor import SystemMonitor
+from data_processing.pipeline import DataProcessingPipeline
+from reporting.report_manager import ReportManager
 
 class RoutePipelineApp:
     def __init__(self):
@@ -35,6 +37,8 @@ class RoutePipelineApp:
         self.notification_manager = None
         self.backup_manager = None
         self.system_monitor = None
+        self.data_pipeline = None
+        self.report_manager = None
         self.setup_application()
     
     def setup_application(self):
@@ -64,6 +68,10 @@ class RoutePipelineApp:
             self.notification_manager = NotificationManager(self.settings)
             self.backup_manager = BackupManager(self.settings)
             self.system_monitor = SystemMonitor(self.settings)
+            
+            # Initialize data processing and reporting
+            self.data_pipeline = DataProcessingPipeline(self.settings, self.db)
+            self.report_manager = ReportManager(self.settings, self.db)
             
             self.logger.info("Route Pipeline System initialized successfully")
             
@@ -146,12 +154,60 @@ class RoutePipelineApp:
         self.logger.info(f"Starting data processing for date range: {date_range}")
         
         try:
+            # Get unprocessed data from database or collection results
             if date_range:
-                self.logger.info(f"Data processing would run for date range: {date_range}")
+                # Parse date range (expected format: YYYY-MM-DD:YYYY-MM-DD)
+                if ':' in date_range:
+                    start_str, end_str = date_range.split(':')
+                    start_date = datetime.strptime(start_str, '%Y-%m-%d')
+                    end_date = datetime.strptime(end_str, '%Y-%m-%d')
+                    raw_data = self.db.get_unprocessed_data_by_range(start_date, end_date)
+                else:
+                    # Single date
+                    target_date = datetime.strptime(date_range, '%Y-%m-%d')
+                    raw_data = self.db.get_unprocessed_data_by_range(target_date, target_date)
             else:
-                self.logger.info("Data processing would run for all unprocessed data")
+                # Process all unprocessed data
+                raw_data = self.db.get_unprocessed_data()
             
-            print("Data processing functionality will be implemented in Phase 3")
+            if not raw_data:
+                print("No unprocessed data found")
+                return
+            
+            print(f"Processing {len(raw_data)} records...")
+            
+            # Run data through the processing pipeline
+            result = self.data_pipeline.process_raw_data(
+                raw_data, 
+                enable_geocoding=True, 
+                enable_calculations=True
+            )
+            
+            if result['status'] == 'success':
+                stats = result['statistics']
+                print(f"✅ Data processing completed successfully!")
+                print(f"  Records processed: {stats['processed_count']}")
+                print(f"  Successful: {stats['success_count']}")
+                print(f"  Errors: {stats['error_count']}")
+                print(f"  Geocoding operations: {stats['geocoding_count']}")
+                print(f"  Calculations: {stats['calculation_count']}")
+                
+                if stats['start_time'] and stats['end_time']:
+                    processing_time = stats['end_time'] - stats['start_time']
+                    print(f"  Processing time: {processing_time.total_seconds():.2f} seconds")
+                
+                # Show storage results
+                if 'storage_results' in result:
+                    storage = result['storage_results']
+                    print(f"  Database updates:")
+                    for entity_type, count in storage.items():
+                        print(f"    {entity_type}: {count} records")
+            else:
+                print(f"❌ Data processing failed: {result.get('error', 'Unknown error')}")
+                if 'statistics' in result:
+                    stats = result['statistics']
+                    print(f"  Records processed: {stats['processed_count']}")
+                    print(f"  Errors: {stats['error_count']}")
             
         except Exception as e:
             self.logger.error(f"Data processing failed: {e}")
@@ -163,12 +219,132 @@ class RoutePipelineApp:
         self.logger.info(f"Starting report generation - Type: {report_type}, Date range: {date_range}")
         
         try:
-            if report_type == "all":
-                self.logger.info("Report generation would run for all report types")
-            else:
-                self.logger.info(f"Report generation would run for type: {report_type}")
+            formats = ['excel']  # Default to Excel, could be configurable
             
-            print("Report generation functionality will be implemented in Phase 4")
+            if report_type == "all":
+                # Generate multiple report types
+                results = []
+                today = datetime.now()
+                
+                # Daily report for today
+                daily_result = self.report_manager.generate_daily_report(
+                    today, formats=formats, include_charts=True
+                )
+                results.append(("Daily", daily_result))
+                
+                # Weekly report for current week
+                start_of_week = today - timedelta(days=today.weekday())
+                weekly_result = self.report_manager.generate_weekly_report(
+                    start_of_week, formats=formats, include_charts=True
+                )
+                results.append(("Weekly", weekly_result))
+                
+                # Monthly report for current month
+                monthly_result = self.report_manager.generate_monthly_report(
+                    today.year, today.month, formats=formats, include_charts=True
+                )
+                results.append(("Monthly", monthly_result))
+                
+                print("✅ Generated all report types:")
+                for report_name, result in results:
+                    if result['status'] == 'success':
+                        print(f"  {report_name}: {result.get('excel_path', 'Generated')}")
+                        if 'data_summary' in result:
+                            summary = result['data_summary']
+                            print(f"    Routes: {summary['routes_count']}, Revenue: ${summary['total_revenue']:,.2f}")
+                    else:
+                        print(f"  {report_name}: {result['status']}")
+                        
+            elif report_type == "daily":
+                if date_range:
+                    target_date = datetime.strptime(date_range.split(':')[0], '%Y-%m-%d')
+                else:
+                    target_date = datetime.now()
+                
+                result = self.report_manager.generate_daily_report(
+                    target_date, formats=formats, include_charts=True
+                )
+                
+                if result['status'] == 'success':
+                    print(f"✅ Daily report generated: {result['excel_path']}")
+                    summary = result['data_summary']
+                    print(f"  Date: {result['date']}")
+                    print(f"  Routes: {summary['routes_count']}")
+                    print(f"  Total Revenue: ${summary['total_revenue']:,.2f}")
+                    print(f"  Total Miles: {summary['total_miles']:,.0f}")
+                else:
+                    print(f"❌ Daily report generation failed: {result['status']}")
+                    
+            elif report_type == "weekly":
+                if date_range:
+                    start_date = datetime.strptime(date_range.split(':')[0], '%Y-%m-%d')
+                else:
+                    today = datetime.now()
+                    start_date = today - timedelta(days=today.weekday())
+                
+                result = self.report_manager.generate_weekly_report(
+                    start_date, formats=formats, include_charts=True
+                )
+                
+                if result['status'] == 'success':
+                    print(f"✅ Weekly report generated: {result['excel_path']}")
+                    summary = result['data_summary']
+                    print(f"  Week: {result['start_date']} to {result['end_date']}")
+                    print(f"  Routes: {summary['routes_count']}")
+                    print(f"  Total Revenue: ${summary['total_revenue']:,.2f}")
+                    print(f"  Total Miles: {summary['total_miles']:,.0f}")
+                else:
+                    print(f"❌ Weekly report generation failed: {result['status']}")
+                    
+            elif report_type == "monthly":
+                if date_range:
+                    target_date = datetime.strptime(date_range.split(':')[0], '%Y-%m-%d')
+                    year, month = target_date.year, target_date.month
+                else:
+                    today = datetime.now()
+                    year, month = today.year, today.month
+                
+                result = self.report_manager.generate_monthly_report(
+                    year, month, formats=formats, include_charts=True
+                )
+                
+                if result['status'] == 'success':
+                    print(f"✅ Monthly report generated: {result['excel_path']}")
+                    summary = result['data_summary']
+                    print(f"  Month: {year}-{month:02d}")
+                    print(f"  Routes: {summary['routes_count']}")
+                    print(f"  Total Revenue: ${summary['total_revenue']:,.2f}")
+                    print(f"  Total Miles: {summary['total_miles']:,.0f}")
+                else:
+                    print(f"❌ Monthly report generation failed: {result['status']}")
+                    
+            elif report_type == "custom":
+                if not date_range or ':' not in date_range:
+                    print("❌ Custom reports require a date range (YYYY-MM-DD:YYYY-MM-DD)")
+                    return
+                
+                start_str, end_str = date_range.split(':')
+                start_date = datetime.strptime(start_str, '%Y-%m-%d')
+                end_date = datetime.strptime(end_str, '%Y-%m-%d')
+                
+                report_name = f"custom_report_{start_str}_{end_str}"
+                
+                result = self.report_manager.generate_custom_report(
+                    start_date, end_date, report_name, formats=formats, include_charts=True
+                )
+                
+                if result['status'] == 'success':
+                    print(f"✅ Custom report generated: {result['excel_path']}")
+                    summary = result['data_summary']
+                    print(f"  Range: {result['start_date']} to {result['end_date']}")
+                    print(f"  Routes: {summary['routes_count']}")
+                    print(f"  Total Revenue: ${summary['total_revenue']:,.2f}")
+                    print(f"  Total Miles: {summary['total_miles']:,.0f}")
+                else:
+                    print(f"❌ Custom report generation failed: {result['status']}")
+            else:
+                print(f"❌ Unknown report type: {report_type}")
+                print("Available types: all, daily, weekly, monthly, custom")
             
         except Exception as e:
             self.logger.error(f"Report generation failed: {e}")
@@ -511,7 +687,7 @@ Examples:
     # Report generation command
     report_parser = subparsers.add_parser('report', help='Generate reports')
     report_parser.add_argument('--type', default='all',
-                              choices=['all', 'daily', 'driver', 'vehicle', 'customer', 'financial'],
+                              choices=['all', 'daily', 'weekly', 'monthly', 'custom'],
                               help='Report type to generate')
     report_parser.add_argument('--date-range',
                               help='Date range for report (YYYY-MM-DD:YYYY-MM-DD)')

@@ -1,0 +1,30 @@
+{
+  "collect_data": {
+    "type": "interval",
+    "interval": 30,
+    "unit": "minutes",
+    "enabled": true
+  },
+  "process_data": {
+    "type": "interval",
+    "interval": 1,
+    "unit": "hours",
+    "enabled": true
+  },
+  "generate_reports": {
+    "type": "daily",
+    "time": "08:00",
+    "enabled": true
+  },
+  "backup_database": {
+    "type": "daily",
+    "time": "02:00",
+    "enabled": true
+  },
+  "system_health_check": {
+    "type": "interval",
+    "interval": 15,
+    "unit": "minutes",
+    "enabled": true
+  }
+}

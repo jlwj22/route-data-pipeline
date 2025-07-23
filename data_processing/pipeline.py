@@ -224,7 +224,7 @@ class DataProcessingPipeline:
             if transformed_data.get('locations'):
                 location_ids = []
                 for location in transformed_data['locations']:
-                    location_id = self.db_ops.insert_location(location)
+                    location_id = self.db_ops.create_location(location)
                     location_ids.append(location_id)
                 storage_results['locations'] = len(location_ids)
             
@@ -232,7 +232,7 @@ class DataProcessingPipeline:
             if transformed_data.get('customers'):
                 customer_ids = []
                 for customer in transformed_data['customers']:
-                    customer_id = self.db_ops.insert_customer(customer)
+                    customer_id = self.db_ops.create_customer(customer)
                     customer_ids.append(customer_id)
                 storage_results['customers'] = len(customer_ids)
             
@@ -240,7 +240,7 @@ class DataProcessingPipeline:
             if transformed_data.get('drivers'):
                 driver_ids = []
                 for driver in transformed_data['drivers']:
-                    driver_id = self.db_ops.insert_driver(driver)
+                    driver_id = self.db_ops.create_driver(driver)
                     driver_ids.append(driver_id)
                 storage_results['drivers'] = len(driver_ids)
             
@@ -248,7 +248,7 @@ class DataProcessingPipeline:
             if transformed_data.get('vehicles'):
                 vehicle_ids = []
                 for vehicle in transformed_data['vehicles']:
-                    vehicle_id = self.db_ops.insert_vehicle(vehicle)
+                    vehicle_id = self.db_ops.create_vehicle(vehicle)
                     vehicle_ids.append(vehicle_id)
                 storage_results['vehicles'] = len(vehicle_ids)
             
@@ -258,7 +258,7 @@ class DataProcessingPipeline:
                 for route in transformed_data['routes']:
                     # Link to existing entities in database
                     route = self._link_route_entities(route)
-                    route_id = self.db_ops.insert_route(route)
+                    route_id = self.db_ops.create_route(route)
                     route_ids.append(route_id)
                 storage_results['routes'] = len(route_ids)
             

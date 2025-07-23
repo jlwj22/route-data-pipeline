@@ -394,3 +394,41 @@ class DatabaseOperations:
         with self.get_connection() as conn:
             conn.execute('VACUUM')
             conn.commit()
+    
+    # Data processing methods
+    def get_unprocessed_data(self) -> List[Dict[str, Any]]:
+        """Get all unprocessed raw data."""
+        # For now, return empty list as there's no raw data table yet
+        return []
+    
+    def get_unprocessed_data_by_range(self, start_date: datetime, end_date: datetime) -> List[Dict[str, Any]]:
+        """Get unprocessed raw data for a date range."""
+        # For now, return empty list as there's no raw data table yet
+        return []
+    
+    def get_routes_by_date_range(self, start_date: datetime, end_date: datetime) -> List[Dict[str, Any]]:
+        """Get routes data for a date range for reporting."""
+        query = '''
+            SELECT r.*, 
+                   d.name as driver_name, d.phone as driver_phone,
+                   v.make as vehicle_make, v.model as vehicle_model,
+                   c.name as customer_name,
+                   sl.address as start_address, sl.city as start_city, sl.state as start_state,
+                   el.address as end_address, el.city as end_city, el.state as end_state
+            FROM routes r
+            LEFT JOIN drivers d ON r.driver_id = d.id
+            LEFT JOIN vehicles v ON r.vehicle_id = v.id
+            LEFT JOIN customers c ON r.customer_id = c.id
+            LEFT JOIN locations sl ON r.start_location_id = sl.id
+            LEFT JOIN locations el ON r.end_location_id = el.id
+            WHERE r.route_date BETWEEN ? AND ?
+            ORDER BY r.route_date
+        '''
+        rows = self.execute_query(query, (start_date.strftime('%Y-%m-%d'), end_date.strftime('%Y-%m-%d')))
+        
+        routes = []
+        for row in rows:
+            route_dict = dict(row)
+            routes.append(route_dict)
+        
+        return routes

@@ -189,22 +189,33 @@ class AutomationManager:
         """Setup default scheduled jobs"""
         # Import here to avoid circular imports
         from data_collection.collection_manager import CollectionManager
-        from data_processing.pipeline import DataPipeline
+        from data_processing.pipeline import DataProcessingPipeline
         from reporting.report_manager import ReportManager
         from automation.backup_manager import BackupManager
         from automation.system_monitor import SystemMonitor
         
+        # Initialize database operations
+        from database.operations import DatabaseOperations
+        db_operations = DatabaseOperations(self.settings.database_path)
+        
         # Initialize managers
-        collection_manager = CollectionManager(self.settings)
-        data_pipeline = DataPipeline(self.settings)
-        report_manager = ReportManager(self.settings)
+        collection_config = {
+            'max_concurrent_collectors': self.settings.max_concurrent_processes,
+            'enable_validation': True,
+            'auto_save_to_database': True,
+            'collectors': {},
+            'validators': {}
+        }
+        collection_manager = CollectionManager(collection_config, db_operations)
+        data_pipeline = DataProcessingPipeline(self.settings, db_operations)
+        report_manager = ReportManager(self.settings, db_operations)
         backup_manager = BackupManager(self.settings)
         system_monitor = SystemMonitor(self.settings)
         
         # Register jobs
-        self.scheduler.register_job('collect_data', collection_manager.collect_all_sources)
-        self.scheduler.register_job('process_data', data_pipeline.process_all_data)
-        self.scheduler.register_job('generate_reports', report_manager.generate_all_reports)
+        self.scheduler.register_job('collect_data', lambda: collection_manager.collect_from_all(parallel=True))
+        self.scheduler.register_job('process_data', lambda: data_pipeline.process_raw_data([], enable_geocoding=True, enable_calculations=True))
+        self.scheduler.register_job('generate_reports', lambda: report_manager.generate_daily_report(datetime.now()))
         self.scheduler.register_job('backup_database', backup_manager.backup_database)
         self.scheduler.register_job('system_health_check', system_monitor.health_check)
         
